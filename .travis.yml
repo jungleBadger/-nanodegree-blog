@@ -1,10 +1,11 @@
-language: python
+language:
+- python
 python:
 - '3.6'
-install: pip install -r requirements.txt
+install:
+- pip3 install -r requirements.txt
 script:
 - gcloud app deploy app.yaml --project jungleblog-173818 -v 20170716t100441 --quiet
-sudo: required
 cache:
   directories:
   - $HOME/google-cloud-sdk/
