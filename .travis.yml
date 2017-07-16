@@ -1,0 +1,27 @@
+language: python
+python:
+- '3.6'
+install: pip install -r requirements.txt
+script:
+- gcloud app deploy app.yaml --project jungleblog-173818 -v 20170716t100441 --quiet
+sudo: required
+cache:
+  directories:
+  - $HOME/google-cloud-sdk/
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+before_install:
+- openssl aes-256-cbc -K $encrypted_48b2894ddc09_key -iv $encrypted_48b2894ddc09_iv
+  -in credentials.tar.gz.enc -out credentials.tar.gz -d
+- gcloud version || true
+- if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export
+  CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
+- source /home/travis/google-cloud-sdk/path.bash.inc
+- gcloud version
+- mkdir -p lib
+env:
+- DATASET_ID=jungleblog-173818
