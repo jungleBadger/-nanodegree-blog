@@ -1,30 +1,72 @@
-# Copyright 2015 Google Inc. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#!/usr/bin/env python
 
 # [START app]
 import logging
-
-from flask import Flask
-
+from flask import Flask, render_template, request, redirect
+from livereload import Server
+from google.cloud import datastore
+import bcrypt
+import sys
 
 app = Flask(__name__)
 
 
+# Instantiates a client
+datastore_client = datastore.Client()
+
+# The kind for the new entity
+kind = 'Task'
+# The name/ID for the new entity
+name = 'sampletask1'
+# The Cloud Datastore key for the new entity
+task_key = datastore_client.key(kind, name)
+
+# Prepares the new entity
+task = datastore.Entity(key=task_key)
+task['description'] = 'Buy milk cloud'
+
+# Saves the entity
+datastore_client.put(task)
+
+print('Saved {}: {}'.format(task.key.name, task['description']))
+
+def generateHash(raw):
+    return bcrypt.hashpw(raw, bcrypt.gensalt())
+
+def validatePassword(password):
+    return bcrypt.checkpw(password, generateHash(password))
+
+@app.route("/login",
+           methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = self.request.get('username')
+        password = self.request.get('password')
+        return 1
+    elif request.method == 'GET':
+        return render_template("login.html")
+    else:
+        return 3
+
+@app.route("/signup",
+           methods=['GET', 'POST'])
+def signup():
+    if request.method == 'GET':
+        return render_template("signup.html")
+    elif request.method == 'POST':
+        user = request.get_json()
+
+        print(user.get('username'))
+        return redirect("/", code=302)
+    else:
+        return 3
+
+
 @app.route('/')
-def hello():
+def home():
     """Return a friendly HTTP greeting."""
-    return 'Hello World travis!'
+    user = "oi"
+    return render_template("home.html", user=user)
 
 
 @app.errorhandler(500)
@@ -35,9 +77,15 @@ def server_error(e):
     See logs for full stacktrace.
     """.format(e), 500
 
+def main(*args):
+    if (len(sys.argv) > 1 and sys.argv[1] == "local"):
+        server = Server(app.wsgi_app)
+        server.watch('main.py')
+        server.serve()
+    else:
+        app.run(host='127.0.0.1', port=8080, debug=True)
+
 
 if __name__ == '__main__':
-    # This is used when running locally. Gunicorn is used to run the
-    # application on Google App Engine. See entrypoint in app.yaml.
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    main()
 # [END app]
