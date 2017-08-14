@@ -1,0 +1,10 @@
+
+{% if user %}
+    Hello {{user}}
+    <form action="/logout" method="post">
+        <input type="submit" />
+    </form>
+
+{% else %}
+    Hello guest
+{% endif %}
