@@ -7,7 +7,6 @@ class Security:
         self.SALT_ROUNDS = salt_rounds
         self.cookie_name = cookie_name
 
-
     def validate_password(self, password, hashed):
         return bcrypt.checkpw(password.encode('utf-8'), hashed)
 

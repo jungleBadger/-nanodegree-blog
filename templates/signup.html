@@ -48,7 +48,7 @@
         </div>
         <div class="form-group">
             <label for="email" class="form-control-label">E-mail</label>
-            {% if error and error == 'Email already taken' %}
+            {% if error and error == 'Email already in use' %}
                 <input value='{{ email if email != None }}' type="email" id="email" name="email" class="form-control is-invalid" required>
             {% else %}
                 <input value='{{ email if email != None }}' type="email" id="email" name="email" class="form-control">

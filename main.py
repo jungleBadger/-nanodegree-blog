@@ -10,39 +10,43 @@ from handlers.logout import Logout
 from handlers.home import Home
 
 app = Flask(__name__)
-
+signup = Signup()
+login = Login()
+logout = Logout()
+home = Home()
 
 @app.route("/login",
            methods=['GET', 'POST'])
 def login_handler():
     if request.method == 'POST':
-        Login().do_login(request.form.get('username'),
+        return login.do_login(request.form.get('username'),
                          request.form.get('password'))
     elif request.method == 'GET':
-        return Login().render_page()
+        return login.render_page()
 
 
 @app.route("/signup",
            methods=['GET', 'POST'])
 def signup_handler():
     if request.method == 'GET':
-            return Signup().render_page()
+        return signup.render_page()
     elif request.method == 'POST':
-        return Signup().signup(request.form.get('username'),
+        return signup.create_account(request.form.get('username'),
                                request.form.get('password'),
                                request.form.get('verify'),
                                request.form.get('email'))
 
+
 @app.route("/logout",
            methods=['POST'])
 def logout_handler():
-    Logout().do_logout()
+    return logout.do_logout()
 
 
 @app.route('/',
            methods=['GET'])
 def home_handler():
-    return Home().render_page('')
+    return home.render_page('')
 
 
 @app.errorhandler(500)
