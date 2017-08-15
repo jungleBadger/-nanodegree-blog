@@ -8,12 +8,16 @@ from handlers.signup import Signup
 from handlers.login import Login
 from handlers.logout import Logout
 from handlers.home import Home
+from handlers.post import Post
+from handlers.security import Security
 
 app = Flask(__name__)
 signup = Signup()
 login = Login()
 logout = Logout()
 home = Home()
+post = Post()
+security = Security()
 
 @app.route("/login",
            methods=['GET', 'POST'])
@@ -37,7 +41,7 @@ def signup_handler():
                                request.form.get('email'))
 
 
-@app.route("/logout",
+@app.route('/logout',
            methods=['POST'])
 def logout_handler():
     return logout.do_logout()
@@ -46,7 +50,55 @@ def logout_handler():
 @app.route('/',
            methods=['GET'])
 def home_handler():
-    return home.render_page('')
+    permission = security.check_permission(accept_anonymous=True)
+    if (permission and permission.get('status') == 1):
+        return home.render_page('', permission.get('username'))
+    else:
+        return permission.get('response')
+
+
+@app.route('/post/manipulate',
+           methods=['GET', 'POST'])
+def manipulate_post_handler():
+    permission = security.check_permission()
+    if (permission and permission.get('status') == 1):
+        if request.method == 'GET':
+            post_id = request.args.get('id')
+            if post_id:
+                post_to_be_edited = post.query_post_by_id(post_id)
+                if post_to_be_edited:
+                    if (permission.get('username') == post_to_be_edited.get("author")):
+                        return post.render_edit_page('', permission.get('username'), post_to_be_edited)
+                    else:
+                        return "Unauthorized operation"
+
+            return post.render_edit_page('', permission.get('username'))
+        else:
+            return post.create_post(permission.get('username'),
+                                    request.form.get('title'),
+                                    request.form.get('image'),
+                                    request.form.get('text'),
+                                    request.form.get('tag'))
+    else:
+        return permission.get('response')
+
+
+
+@app.route('/post',
+           methods=['GET'])
+def post_handler():
+    permission = security.check_permission(accept_anonymous=True)
+    if (permission and permission.get('status') == 1):
+        if request.method == 'GET':
+            post_id = request.args.get('id')
+            if post_id:
+                post_to_view = post.query_post_by_id(post_id)
+                if post_to_view:
+                    return post.render_view_page('', permission.get('username'), post_to_view)
+
+            return "Post not found"
+    else:
+        return permission.get('response')
 
 
 @app.errorhandler(500)

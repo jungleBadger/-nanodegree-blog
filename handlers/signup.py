@@ -4,6 +4,7 @@ from handlers.datastore import Datastore
 from handlers.security import Security
 from handlers.home import Home
 from handlers.login import Login
+import uuid
 class Signup:
     def __init__(self):
         self.datastore = Datastore()
@@ -24,9 +25,10 @@ class Signup:
 
     def create_account(self, username='', password='', verified_password='', email=''):
         error = ''
+        print(password)
         if username == '' or password == '' or email == '':
             error = "Can not proceed without username or password"
-        elif len(password) < 6 or len(password) > 16:
+        elif password and len(password) < 6 or len(password) > 16:
             error = "Invalid password"
         elif password != verified_password:
             error = "Password dont match"
@@ -44,6 +46,7 @@ class Signup:
             return self.render_page(error, username, password, verified_password, email)
         else:
             user = self.datastore.create_entity('User', username)
+            user['id'] = str(uuid.uuid4())
             user['username'] = username
             user['password'] = self.security.generate_hash(password)
             user['email'] = email
