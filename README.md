@@ -30,3 +30,6 @@ You may need to apply your datastore/appengine credentials in order to run local
 ### side note
 Personally I would not achieve this result using these technologies such templating and python. I believe that node.js would provide a very more flexible environment to perform this task.
 I do know that frontend style could be very more polished and there are room from several features but I not enjoyed acting on this project using these technologies so I am aiming to pass doing the requirements and not going after excellence.
+
+### Running app link
+`https://jungleblog-173818.appspot.com/`
