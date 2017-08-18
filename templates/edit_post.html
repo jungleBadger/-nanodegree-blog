@@ -3,39 +3,68 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Post</title>
+    <title>{{action}} - Post</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <style>
+        body, html {
+            font-family: 'Open Sans', sans-serif;
+            height: 100%;
+            width: 100%;
+        }
+        #app {
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: azure;
+            height: calc(100% - 60px);
+        }
+        form {
+            padding: 20px;
+            box-sizing: border-box;
+            background: white;
+            margin: 10px;
+            border: 1px solid gainsboro;
+            border-radius: 3px;
+        }
+    </style>
 </head>
 <body>
 
     {% include "header.html" %}
 
-    POST MANIPULATION
+    <div id="app">
+         <h2>{{action}} Post</h2>
+        {% if error %}
+         <div class="alert alert-danger" role="alert">
+            {{error}}
+         </div>
+         {% endif %}
+        <form action="/post/manipulate" method="POST" enctype="multipart/form-data">
+            <input type="hidden" value='{{ post.id if post and post.id != None }}' id="post_id" name="post_id"/>
+            <div class="form-group">
+                <label for="title" class="form-control-label">Title</label>
+                <input value='{{ post.title if post and post.title != None }}' type="text" id="title" name="title" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="image" class="form-control-label">Post Image</label>
+                <input type="file" id="image" name="image" class="form-control-file" required>
+                 <small class="text-muted">
+                    Max 1mb.
+                </small>
+            </div>
+            <div class="form-group">
+                <label for="text" class="form-control-label">Text</label>
+                <textarea id="text" name="text" class="form-control" required>{{ post.text if post and post.text != None }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="tag" class="form-control-label">Tag</label>
+                <input value='{{ post.tag if post and post.tag != None }}' type="text" id="tag" name="tag" class="form-control" required>
+            </div>
 
-    {{post}}
-    {{error}}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
 
-    <form action="/post/manipulate" method="POST">
-        <input type="hidden" value='{{ post.id if post and post.id != None }}' />
-        <div class="form-group">
-            <label for="title" class="form-control-label">Title</label>
-            <input value='{{ post.title if post and post.title != None }}' type="text" id="title" name="title" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="image" class="form-control-label">Image</label>
-            <input type="text" id="image" name="image" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="text" class="form-control-label">Text</label>
-            <input value='{{ post.text if post and post.text != None }}' type="text" id="text" name="text" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="tag" class="form-control-label">Tag</label>
-            <input value='{{ post.tag if post and post.tag != None }}' type="text" id="tag" name="tag" class="form-control" required>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
 
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>

@@ -17,7 +17,7 @@ class Signup:
     def render_page(self, error='', username='', password='', verified_password='', email=''):
         return render_template(self.page_path,
                                error=error,
-                               username=username,
+                               username_attempt=username,
                                password=password,
                                verify=verified_password,
                                email=email)
@@ -25,16 +25,15 @@ class Signup:
 
     def create_account(self, username='', password='', verified_password='', email=''):
         error = ''
-        print(password)
         if username == '' or password == '' or email == '':
             error = "Can not proceed without username or password"
         elif password and len(password) < 6 or len(password) > 16:
             error = "Invalid password"
         elif password != verified_password:
             error = "Password dont match"
-        elif self.datastore.do_query('User', 'username', username) != 0:
+        elif len(self.datastore.do_query('User', 'username', username)) > 0:
             error = "User already exists"
-        elif self.datastore.do_query('User', 'email', email) != 0:
+        elif len(self.datastore.do_query('User', 'email', email)) > 0:
             error = "Email already in use"
 
         # I dont like the approach of returning rendered pages as results of operations such

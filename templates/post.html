@@ -5,23 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title> Post</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <style>
+        body, html {
+            font-family: 'Open Sans', sans-serif;
+            height: 100%;
+            width: 100%;
+        }
+        #app {
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        form {
+            padding: 20px;
+            box-sizing: border-box;
+            background: white;
+            margin: 10px;
+            border: 1px solid gainsboro;
+            border-radius: 3px;
+        }
+        #post-body {
+            text-align: center;
+        }
+        .img-responsive {
+            height: 400px;
+            width: 80%;
+        }
+        textarea {
+            width: 100%
+        }
+    </style>
 </head>
 <body>
 
     {% include "header.html" %}
-
-
-    {{post}}
-
-
-    POST BY {{post.author}} with id {{post.id}}
-
-
-
-    <form action="/post/manipulate" method="GET">
-        <input type="hidden" name="id" id="id" value="{{post.id}}" />
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+    <div id="app">
+        <section id="post-body">
+            <div>
+                <h2>{{post.title}}</h2>
+                <h6>{{post.author}} - {{post.timestamp | ctime}}</h6>
+            </div>
+            <img class="card-img-top img-responsive" src="data:image/png;base64,{{post.image}}" />
+            <article>
+                {{post.text}}
+            </article>
+            {% if username == post.author %}
+                <form action="/post/manipulate" method="GET">
+                    <input type="hidden" name="id" id="id" value="{{post.id}}" />
+                    <button type="submit" class="btn btn-primary">EDIT POST</button>
+                </form>
+            {% endif %}
+        </section>
+        <section id="comments-body">
+            <h4>Comments</h4>
+            {% if comments %}
+                {% for comment in comments %}
+                    <div>
+                        <div>{{comment.text}}</div>
+                        <small class="text-muted">{{comment.author}} at {{comment.timestamp | ctime}}</small>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div>No comments on this post yet</div>
+            {% endif %}
+            <div>
+            {% if username %}
+                <form action="/addComment" method="POST">
+                    <input type="hidden" id="post_id" name="post_id" value="{{post.id}}"/>
+                    <textarea id="comment" name="comment"></textarea>
+                    <button type="submit" class="btn btn-primary">ADD COMMENT</button>
+                </form>
+            {% else %}
+                <div>Only logged users can comment</div>
+            {% endif %}
+            </div>
+        </section>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" crossorigin="anonymous"></script>

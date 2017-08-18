@@ -1,11 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Home</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <style>
+        body, html {
+            font-family: 'Open Sans', sans-serif;
+            height: 100%;
+            width: 100%;
+            background-color: azure;
+        }
+        #app {
+            display: flex;
+            flex-direction: row;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: azure;
+            height: calc(100% - 60px);
+        }
+        #app .card {
+            margin: 10px 0;
+            box-shadow: 0px 0px 5px 2px gainsboro;
+            border-radius: 3px;
+            width: 50%;
+            height: 250px;
+            border: 1px solid gainsboro;
+        }
+
+        .card .card-body {
+              max-width: 100%;
+              max-height: 100%;
+              display: flex;
+              padding: 10px;
+              flex-direction: column;
+              align-items: baseline;
+              justify-content: space-around;
+        }
+
+        .card img {
+            width: 70px;
+            height: 70px;
+
+        }
+
+        .link {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+            border: 1px solid gainsboro;
+            background: white;
+            box-shadow: 0px 0px 5px 2px gainsboro;
+            border-radius: 3px;
+        }
+
+        .link img {
+            width: 50%;
+            max-height: 100%;
+        }
+
+        @media screen and (max-width: 720px) {
+            #app {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
 
-{% include "header.html" %}
+    {% include "header.html" %}
+    <main id="app">
+        <section class="container justify-content-md-center col-sm-9">
+            <h3>Latest 10 posts</h3>
+        {% if posts %}
+            {% for post in posts %}
+
+            <a href="/post?id={{post.id}}">
+                <div class="card text-center">
+                    <div class="card-header">
+                        {{post.title}}
+                    </div>
+                    <div class="card-body">
+                        <img class="card-img-top img-responsive" src="data:image/png;base64,{{post.image}}" />
+                        <div class="card-text">{{post.text | postlimit}}</div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        {{post.author}} - {{post.timestamp | ctime}}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        {% else %}
+            No posts yet
+        {% endif %}
+        </section>
+        <section class="container justify-content-md-center col-sm-3">
+        {% if username %}
+            <a href="/post/manipulate" class="link">
+                <img src="/static/images/add.svg" />
+                <h3>Add a post</h3>
+            </a>
+        {% else %}
+            <a href="/login">Log in to blog a thing</a>
+        {% endif %}
+        </section>
+    </main>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -1,11 +1,31 @@
-# App Engine Standard Flask Hello World
+# App developed to meet Udacity Nanodegree requirements.
 
-This sample shows how to use [Flask](http://flask.pocoo.org/) with Google App
-Engine Standard.
+This project consists of a community blog that users could freely signup and speak up their minds sharing thoughts!
 
-Before running or deploying this application, install the dependencies using
-[pip](http://pip.readthedocs.io/en/stable/):
+### How to run it?
+Download and install python3 on your machine
+Download and install google engine on your machine
+Install with pip3 the requirements (`pip3 install -r requirements.txt`)
 
-    pip install -t lib -r requirements.txt
+### TECHNOLOGIES
+* Python3 with Flask
+* Google app engine
+* Google datastore
+* Bootstrap
+* Travis CI
 
-For more information, see the [App Engine Standard README](../../README.md)
+### FEATURES
+* Login
+* Signup
+* Logout
+* Create Post
+* Edit Post
+* Post details
+* Authenticated operations
+* Add post comments
+
+### NOTES
+You may need to apply your datastore/appengine credentials in order to run locally
+
+### side note
+Personally I would not achieve this result using these technologies such templating and python. I believe that node.js would provide a very more flexible environment to perform this task.
