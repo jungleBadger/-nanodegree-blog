@@ -22,14 +22,16 @@ class Post:
                                post=post)
 
 
-    def render_view_page(self, post, error='', username='', comments=''):
+    def render_view_page(self, post, post_likes=0, error='', username='', comments='', user_liked=''):
         if not comments:
             comments = self.get_posts_comments(post.get('id'))
         return render_template(self.post_page_path,
                                error=error,
                                username=username,
                                post=post,
-                               comments=comments)
+                               likes=post_likes,
+                               comments=comments,
+                               user_liked=user_liked)
 
 
     def query_latest_posts(self):
@@ -50,6 +52,27 @@ class Post:
             return post_list
         else:
             return 0
+
+
+    def query_comments_by_id(self, comment_id):
+        comment = self.datastore.do_query('Comments', 'id', comment_id)
+        if len(comment) > 0:
+            return comment[0]
+        else:
+            return 0
+
+
+    def query_likes_by_post_id(self, post_id):
+        likes = self.datastore.do_query('Like', 'post', post_id)
+        return len(likes)
+
+
+    def query_likes_by_post_id_and_user(self, post_id, username):
+        like = self.datastore.do_query('Like', 'post', post_id, 'user', username)
+        if len(like) > 0:
+            return like[0]
+        else:
+            return []
 
 
     def get_posts_comments(self, post_id):
@@ -96,6 +119,29 @@ class Post:
         return {'response': "Error"}
 
 
+    def delete_post(self, post_id):
+        self.datastore.delete_object('Post', post_id)
+        return 1
+
+
+    def like_post(self, post_id, username):
+        like_id = str(uuid.uuid4())
+        like = self.datastore.create_entity('Like', like_id)
+        error = ''
+        like['id'] = like_id
+        like['post'] = post_id
+        like['user'] = username
+        self.datastore.save_object(like)
+        return {'status': 1, 'post_id': post_id}
+
+
+    def dislike_post(self, post_id, username):
+        like = self.query_likes_by_post_id_and_user(post_id, username)
+        print(self.datastore.delete_object('Like', like['id']))
+        print(like)
+        return {'status': 1, 'post_id': post_id}
+
+
     def comment_post(self, post_id, comment_author, comment_text):
         comment_id = str(uuid.uuid1())
         comment = self.datastore.create_entity('Comments', comment_id)
@@ -117,6 +163,22 @@ class Post:
         else:
             return error
 
-    #
-    # def delete_post(self, post_id):
-    #     return 1
+
+    def delete_comment(self, comment_id):
+        print(comment_id)
+        self.datastore.delete_object('Comments', comment_id)
+        return 1
+
+
+    def edit_comment(self, comment_id, edit_author, comment_text):
+        comment = self.query_comments_by_id(comment_id)
+        print (comment)
+        if comment != 0:
+            if comment.get('author') != edit_author:
+                return "Unauthorized operation"
+            if comment_text != '':
+                comment['text'] = comment_text
+            self.datastore.save_object(comment)
+            return {'status': 1, 'comment_id': comment_id}
+
+        return {'response': "Error"}

@@ -7,12 +7,14 @@ class Datastore:
         self.data = []
 
 
-    def do_query(self, kind, key='', value='', limit=100, order_by=''):
+    def do_query(self, kind, key='', value='', aux_key='', aux_value='', limit=100, order_by=''):
         if not order_by:
             order_by=key
         query = self.datastore_client.query(kind=kind, order=(order_by,))
         if (key and value):
             query.add_filter(key, '=', value)
+        if (aux_key and aux_value):
+            query.add_filter(aux_key, '=', aux_value)
         result = list(query.fetch(limit=limit))
         if len(result) > 0:
             return result
@@ -29,3 +31,7 @@ class Datastore:
 
     def save_object(self, model_object):
         return self.datastore_client.put(model_object)
+
+
+    def delete_object(self, kind, value):
+        return self.datastore_client.delete(self.datastore_client.key(kind, value))

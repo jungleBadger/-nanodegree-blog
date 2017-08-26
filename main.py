@@ -104,9 +104,8 @@ def manipulate_post_handler():
         return permission.get('response')
 
 
-
 @app.route('/post',
-           methods=['GET'])
+           methods=['GET', 'POST'])
 def post_handler():
     permission = security.check_permission(accept_anonymous=True)
     if (permission and permission.get('status') == 1):
@@ -115,11 +114,52 @@ def post_handler():
             if post_id:
                 post_to_view = post.query_post_by_id(post_id)
                 if post_to_view != 0:
-                    return post.render_view_page(post=post_to_view, error='', username=permission.get('username'))
+                    user_liked = len(post.query_likes_by_post_id_and_user(post_id, permission.get('username')))
+                    post_likes = post.query_likes_by_post_id(post_id)
+                    return post.render_view_page(post=post_to_view, post_likes=post_likes, error='', username=permission.get('username'), user_liked=user_liked)
 
             return "Post not found"
     else:
         return permission.get('response')
+
+
+@app.route('/post/delete',
+           methods=['POST'])
+def delete_handler():
+    permission = security.check_permission(accept_anonymous=True)
+    if (permission and permission.get('status') == 1):
+        post_id = request.form.get('id')
+
+        if (post.delete_post(post_id) == 1):
+            return redirect('/')
+        else:
+            return redirect('Error deleting post'), 500
+
+
+@app.route('/post/like',
+           methods=['POST'])
+def like_handler():
+    permission = security.check_permission(accept_anonymous=True)
+    if (permission and permission.get('status') == 1):
+        operation_result = post.like_post(request.form.get('post_id'),
+                                             permission.get('username'))
+        if operation_result.get('status') == 1:
+            return redirect('/post?id=%s' % request.form.get('post_id'))
+        else:
+            return operation_result
+
+
+@app.route('/post/dislike',
+           methods=['POST'])
+def dislike_handler():
+    permission = security.check_permission(accept_anonymous=True)
+    if (permission and permission.get('status') == 1):
+        operation_result = post.dislike_post(request.form.get('post_id'),
+                                             permission.get('username'))
+        if operation_result.get('status') == 1:
+            return redirect('/post?id=%s' % request.form.get('post_id'))
+        else:
+            return operation_result
 
 
 @app.route('/addComment',
@@ -137,6 +177,39 @@ def comment_handler():
 
     else:
         return "Only logged users can perform this operation"
+
+
+
+@app.route('/editComment',
+           methods=['POST'])
+def edit_command_handler():
+    permission = security.check_permission()
+    if (permission and permission.get('status') == 1):
+        comment_id = request.form.get('comment_id')
+        operation_result = post.edit_comment(comment_id,
+                          permission.get('username'),
+                          request.form.get('comment'))
+        if operation_result.get('status') == 1:
+            return redirect('/post?id=%s' % request.form.get('post_id'))
+        else:
+            return operation_result
+
+    else:
+        return "Only logged users can perform this operation"
+
+
+
+@app.route('/deleteComment',
+           methods=['POST'])
+def delete_comment_handler():
+    permission = security.check_permission(accept_anonymous=True)
+    if (permission and permission.get('status') == 1):
+        comment_id = request.form.get('comment_id')
+
+        if (post.delete_comment(comment_id) == 1):
+            return redirect('/post?id=%s' % request.form.get('post_id'))
+        else:
+            return redirect('Error deleting post'), 500
 
 
 @app.errorhandler(500)

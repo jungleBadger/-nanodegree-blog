@@ -3,13 +3,15 @@
 This project consists of a community blog that users could freely signup and speak up their minds sharing thoughts!
 
 ### How to run it?
-Download and install python3 on your machine
-Download and install google engine on your machine
-Install with pip3 the requirements (`pip3 install -r requirements.txt`)
+Download and install [python3](https://www.python.org/downloads/) on your machine
+Download and install [google engine for python](https://cloud.google.com/appengine/docs/python/) on your machine
+Install requirements running `pip3 install -r requirements.txt` from the root folder
+run `python3 main.py` from the root folder
+access your application on http://localhost:8080 - File watch is active
 
 ### TECHNOLOGIES
 * Python3 with Flask
-* Google app engine
+* Google app engine running Flex environment
 * Google datastore
 * Bootstrap
 * Travis CI

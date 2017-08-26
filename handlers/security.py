@@ -3,7 +3,8 @@ import bcrypt
 import hmac
 from flask import request, make_response, redirect, render_template
 class Security:
-    def __init__(self, secret='super_secret', salt_rounds=12, cookie_name='user_session'):
+    def __init__(self, secret='super_secret', salt_rounds=12,
+                 cookie_name='user_session'):
         self.SECRET = secret
         self.SALT_ROUNDS = salt_rounds
         self.cookie_name = cookie_name
@@ -18,17 +19,19 @@ class Security:
 
 
     def make_secure_cookie(self, raw):
-        return '%s|%s' % (raw, hmac.new(self.SECRET.encode('utf-8'), raw.encode('utf-8')).hexdigest())
+        return '%s|%s' % (raw, hmac.new(
+            self.SECRET.encode('utf-8'), raw.encode('utf-8')).hexdigest())
 
 
     def clear_cookie(self, response):
         response.set_cookie(self.cookie_name, '', expires=0)
 
 
-    def set_cookie(self, response, username = ''):
+    def set_cookie(self, response, username=''):
         if username:
             cookie_val = self.make_secure_cookie(username)
-            response.set_cookie('%s=%s; Path=/' % (self.cookie_name, cookie_val))
+            response.set_cookie('%s=%s; Path=/' %
+                                (self.cookie_name, cookie_val))
 
 
     def read_secure_cookie(self, cookie):
@@ -39,7 +42,9 @@ class Security:
                 return username
 
 
-    def check_permission(self, redirect_path='/login', accept_anonymous=0):
+    def check_permission(self,
+                         redirect_path='/login',
+                         accept_anonymous=0):
         if 'user_session' in request.cookies:
             username = self.read_secure_cookie(request.cookies.get('user_session'))
             if not username:

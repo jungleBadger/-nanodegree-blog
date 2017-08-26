@@ -43,6 +43,7 @@
         <section id="post-body">
             <div>
                 <h2>{{post.title}}</h2>
+                <h4>{{likes}} Likes</h4>
                 <h6>{{post.author}} - {{post.timestamp | ctime}}</h6>
             </div>
             <img class="card-img-top img-responsive" src="data:image/png;base64,{{post.image}}" />
@@ -50,20 +51,58 @@
                 {{post.text}}
             </article>
             {% if username == post.author %}
+            <div>
                 <form action="/post/manipulate" method="GET">
                     <input type="hidden" name="id" id="id" value="{{post.id}}" />
                     <button type="submit" class="btn btn-primary">EDIT POST</button>
                 </form>
+                <form action="/post/delete" method="POST">
+                    <input type="hidden" name="id" value="{{post.id}}" />
+                    <button type="submit" class="btn btn-primary">DELETE POST</button>
+                </form>
+            </div>
             {% endif %}
+            {% if username and not username == post.author and user_liked <= 0 %}
+                <form action="/post/like" method="POST">
+                    <input type="hidden" value="{{username}}" name="username">
+                    <input type="hidden" value="{{post.id}}" name="post_id">
+                    <button type="submit" class="btn btn-primary">LIKE POST</button>
+                </form>
+            {% endif %}
+              {% if username and not username == post.author and user_liked > 0 %}
+                <form action="/post/dislike" method="POST">
+                    <input type="hidden" value="{{username}}" name="username">
+                    <input type="hidden" value="{{post.id}}" name="post_id">
+                    <button type="submit" class="btn btn-primary">DISLIKE POST</button>
+                </form>
+            {% endif %}
+
         </section>
         <section id="comments-body">
             <h4>Comments</h4>
             {% if comments %}
                 {% for comment in comments %}
+                    {% if username == comment.author %}
+                     <form action="/editComment" method="POST">
+                         <textarea id="comment" name="comment">{{comment.text}}</textarea>
+                         <input type="hidden" name="comment_id" value="{{comment.id}}"/>
+                         <input type="hidden" name="post_id" value="{{post.id}}"/>
+                        <button type="submit" class="btn btn-primary">EDIT COMMENT</button>
+                    </form>
+                     <form action="/deleteComment" method="POST">
+                        <input type="hidden" name="comment_id" value="{{comment.id}}"/>
+                         <input type="hidden" name="post_id" value="{{post.id}}"/>
+                        <button type="submit" class="btn btn-primary">DELETE COMMENT</button>
+                    </form>
+                    <small class="text-muted">{{comment.author}} at {{comment.timestamp | ctime}}</small>
+                    {% endif %}
+                    {% if not username == comment.author %}
                     <div>
                         <div>{{comment.text}}</div>
                         <small class="text-muted">{{comment.author}} at {{comment.timestamp | ctime}}</small>
                     </div>
+                    {% endif %}
+
                 {% endfor %}
             {% else %}
                 <div>No comments on this post yet</div>
