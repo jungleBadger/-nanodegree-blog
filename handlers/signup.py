@@ -5,6 +5,8 @@ from handlers.security import Security
 from handlers.home import Home
 from handlers.login import Login
 import uuid
+
+
 class Signup:
     def __init__(self):
         self.datastore = Datastore()
@@ -13,8 +15,9 @@ class Signup:
         self.login = Login()
         self.page_path = 'signup.html'
 
-
-    def render_page(self, error='', username='', password='', verified_password='', email=''):
+    def render_page(self,
+                    error='', username='',
+                    password='', verified_password='', email=''):
         return render_template(self.page_path,
                                error=error,
                                username_attempt=username,
@@ -22,8 +25,9 @@ class Signup:
                                verify=verified_password,
                                email=email)
 
-
-    def create_account(self, username='', password='', verified_password='', email=''):
+    def create_account(self,
+                       username='', password='',
+                       verified_password='', email=''):
         error = ''
         if username == '' or password == '' or email == '':
             error = "Can not proceed without username or password"
@@ -36,13 +40,9 @@ class Signup:
         elif len(self.datastore.do_query('User', 'email', email)) > 0:
             error = "Email already in use"
 
-        # I dont like the approach of returning rendered pages as results of operations such
-        # as login and signup. I believe that we need to send http status and error identifier to be consumed
-        # as generic as possible so we can use it on a mobile app for instance along with web app.
-        #  But the challenge ask for a solution using templates and this sort of stuff.
-        # return signupStatus, 403
         if error:
-            return self.render_page(error, username, password, verified_password, email)
+            return self.render_page(
+                error, username, password, verified_password, email)
         else:
             user = self.datastore.create_entity('User', username)
             user['id'] = str(uuid.uuid4())

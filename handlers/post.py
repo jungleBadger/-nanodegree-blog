@@ -3,6 +3,8 @@ from flask import render_template
 from handlers.datastore import Datastore
 import uuid
 import time
+
+
 class Post:
     def __init__(self):
         self.post_page_path = 'post.html'
@@ -10,9 +12,8 @@ class Post:
         self.login_path = 'login.html'
         self.datastore = Datastore()
 
-
-
-    def render_edit_page(self, error='', username='', post='', action='Create'):
+    def render_edit_page(self,
+                         error='', username='', post='', action='Create'):
         if post:
             action = 'Edit'
         return render_template(self.edit_post_path,
@@ -21,8 +22,9 @@ class Post:
                                username=username,
                                post=post)
 
-
-    def render_view_page(self, post, post_likes=0, error='', username='', comments='', user_liked=''):
+    def render_view_page(self,
+                         post, post_likes=0, error='',
+                         username='', comments='', user_liked=''):
         if not comments:
             comments = self.get_posts_comments(post.get('id'))
         return render_template(self.post_page_path,
@@ -33,10 +35,9 @@ class Post:
                                comments=comments,
                                user_liked=user_liked)
 
-
     def query_latest_posts(self):
-        return self.datastore.do_query(kind='Post', limit=10, order_by='-timestamp')
-
+        return self.datastore.do_query(
+            kind='Post', limit=10, order_by='-timestamp')
 
     def query_post_by_id(self, post_id):
         post_list = self.datastore.do_query('Post', 'id', post_id)
@@ -45,14 +46,12 @@ class Post:
         else:
             return 0
 
-
     def query_post_by_tag(self, post_tag):
         post_list = self.datastore.do_query('Post', 'tag', post_tag)
         if len(post_list) > 0:
             return post_list
         else:
             return 0
-
 
     def query_comments_by_id(self, comment_id):
         comment = self.datastore.do_query('Comments', 'id', comment_id)
@@ -61,25 +60,23 @@ class Post:
         else:
             return 0
 
-
     def query_likes_by_post_id(self, post_id):
         likes = self.datastore.do_query('Like', 'post', post_id)
         return len(likes)
 
-
     def query_likes_by_post_id_and_user(self, post_id, username):
-        like = self.datastore.do_query('Like', 'post', post_id, 'user', username)
+        like = self.datastore.do_query(
+            'Like', 'post', post_id, 'user', username)
         if len(like) > 0:
             return like[0]
         else:
             return []
 
-
     def get_posts_comments(self, post_id):
         return self.datastore.do_query('Comments', 'post_id', post_id)
 
-
-    def create_post(self, post_author, post_title, post_image, post_text, post_tag):
+    def create_post(self,
+                    post_author, post_title, post_image, post_text, post_tag):
         post_id = str(uuid.uuid4())
         post = self.datastore.create_entity('Post', post_id)
         error = ''
@@ -95,12 +92,14 @@ class Post:
         else:
             self.datastore.save_object(post)
         if error:
-            return {'response':self.render_edit_page(error, post_author, post)}
+            return {'response': self.render_edit_page(
+                error, post_author, post)}
         else:
-            return {'status':1, 'post_id': post_id}
+            return {'status': 1, 'post_id': post_id}
 
-
-    def edit_post(self, post_id, edit_author, post_title='', post_image='', post_text='', post_tag=''):
+    def edit_post(self,
+                  post_id, edit_author, post_title='',
+                  post_image='', post_text='', post_tag=''):
         post = self.query_post_by_id(post_id)
         if post != 0:
             if post.get('author') != edit_author:
@@ -114,15 +113,13 @@ class Post:
             if post_tag != '':
                 post['tag'] = post_tag
             self.datastore.save_object(post)
-            return {'status':1, 'post_id': post_id}
+            return {'status': 1, 'post_id': post_id}
 
         return {'response': "Error"}
-
 
     def delete_post(self, post_id):
         self.datastore.delete_object('Post', post_id)
         return 1
-
 
     def like_post(self, post_id, username):
         like_id = str(uuid.uuid4())
@@ -134,13 +131,11 @@ class Post:
         self.datastore.save_object(like)
         return {'status': 1, 'post_id': post_id}
 
-
     def dislike_post(self, post_id, username):
         like = self.query_likes_by_post_id_and_user(post_id, username)
         print(self.datastore.delete_object('Like', like['id']))
         print(like)
         return {'status': 1, 'post_id': post_id}
-
 
     def comment_post(self, post_id, comment_author, comment_text):
         comment_id = str(uuid.uuid1())
@@ -163,12 +158,10 @@ class Post:
         else:
             return error
 
-
     def delete_comment(self, comment_id):
         print(comment_id)
         self.datastore.delete_object('Comments', comment_id)
         return 1
-
 
     def edit_comment(self, comment_id, edit_author, comment_text):
         comment = self.query_comments_by_id(comment_id)

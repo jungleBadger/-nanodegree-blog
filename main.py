@@ -22,12 +22,14 @@ home = Home()
 post = Post()
 security = Security()
 
+
 @app.route("/login",
            methods=['GET', 'POST'])
 def login_handler():
     if request.method == 'POST':
-        return login.do_login(request.form.get('username'),
-                         request.form.get('password'))
+        return login.do_login(
+            request.form.get('username'),
+            request.form.get('password'))
     elif request.method == 'GET':
         return login.render_page()
 
@@ -38,10 +40,11 @@ def signup_handler():
     if request.method == 'GET':
         return signup.render_page()
     elif request.method == 'POST':
-        return signup.create_account(request.form.get('username'),
-                               request.form.get('password'),
-                               request.form.get('verify'),
-                               request.form.get('email'))
+        return signup.create_account(
+            request.form.get('username'),
+            request.form.get('password'),
+            request.form.get('verify'),
+            request.form.get('email'))
 
 
 @app.route('/logout',
@@ -56,7 +59,8 @@ def home_handler():
     permission = security.check_permission(accept_anonymous=True)
     if (permission and permission.get('status') == 1):
         latest_posts = post.query_latest_posts()
-        return home.render_page(error='', username=permission.get('username'), posts=latest_posts)
+        return home.render_page(
+            error='', username=permission.get('username'), posts=latest_posts)
     else:
         return permission.get('response')
 
@@ -71,8 +75,10 @@ def manipulate_post_handler():
             if post_id:
                 post_to_be_edited = post.query_post_by_id(post_id)
                 if post_to_be_edited:
-                    if (permission.get('username') == post_to_be_edited.get("author")):
-                        return post.render_edit_page('', permission.get('username'), post_to_be_edited)
+                    if permission.get('username') == \
+                            post_to_be_edited.get("author"):
+                        return post.render_edit_page(
+                            '', permission.get('username'), post_to_be_edited)
                     else:
                         return "Unauthorized operation"
 
@@ -80,24 +86,28 @@ def manipulate_post_handler():
         else:
             image = ''
             if (request.files['image']):
-                image = base64.b64encode(request.files['image'].read()).decode()
+                image = base64.b64encode(
+                    request.files['image'].read()).decode()
             operation_result = 0
             if request.form.get('post_id'):
-                operation_result = post.edit_post(request.form.get('post_id'),
-                                      permission.get('username'),
-                                      request.form.get('title'),
-                                      image,
-                                      request.form.get('text'),
-                                      request.form.get('tag'))
+                operation_result = post.edit_post(
+                    request.form.get('post_id'),
+                    permission.get('username'),
+                    request.form.get('title'),
+                    image,
+                    request.form.get('text'),
+                    request.form.get('tag'))
             else:
-                operation_result = post.create_post(permission.get('username'),
-                                        request.form.get('title'),
-                                        image,
-                                        request.form.get('text'),
-                                        request.form.get('tag'))
+                operation_result = post.create_post(
+                    permission.get('username'),
+                    request.form.get('title'),
+                    image,
+                    request.form.get('text'),
+                    request.form.get('tag'))
 
             if operation_result and operation_result.get('status') == 1:
-                return redirect('/post?id=%s' % operation_result.get('post_id'))
+                return redirect(
+                    '/post?id=%s' % operation_result.get('post_id'))
             else:
                 return operation_result.get('response')
     else:
@@ -114,9 +124,16 @@ def post_handler():
             if post_id:
                 post_to_view = post.query_post_by_id(post_id)
                 if post_to_view != 0:
-                    user_liked = len(post.query_likes_by_post_id_and_user(post_id, permission.get('username')))
+                    user_liked = len(
+                        post.query_likes_by_post_id_and_user(
+                            post_id, permission.get('username')))
                     post_likes = post.query_likes_by_post_id(post_id)
-                    return post.render_view_page(post=post_to_view, post_likes=post_likes, error='', username=permission.get('username'), user_liked=user_liked)
+                    return post.render_view_page(
+                        post=post_to_view,
+                        post_likes=post_likes,
+                        error='',
+                        username=permission.get('username'),
+                        user_liked=user_liked)
 
             return "Post not found"
     else:
@@ -141,8 +158,9 @@ def delete_handler():
 def like_handler():
     permission = security.check_permission(accept_anonymous=True)
     if (permission and permission.get('status') == 1):
-        operation_result = post.like_post(request.form.get('post_id'),
-                                             permission.get('username'))
+        operation_result = post.like_post(
+            request.form.get('post_id'),
+            permission.get('username'))
         if operation_result.get('status') == 1:
             return redirect('/post?id=%s' % request.form.get('post_id'))
         else:
@@ -167,9 +185,10 @@ def dislike_handler():
 def comment_handler():
     permission = security.check_permission()
     if (permission and permission.get('status') == 1):
-        operation_result = post.comment_post(request.form.get('post_id'),
-                          permission.get('username'),
-                          request.form.get('comment'))
+        operation_result = post.comment_post(
+            request.form.get('post_id'),
+            permission.get('username'),
+            request.form.get('comment'))
         if operation_result == 1:
             return redirect('/post?id=%s' % request.form.get('post_id'))
         else:
@@ -179,16 +198,16 @@ def comment_handler():
         return "Only logged users can perform this operation"
 
 
-
 @app.route('/editComment',
            methods=['POST'])
 def edit_command_handler():
     permission = security.check_permission()
     if (permission and permission.get('status') == 1):
         comment_id = request.form.get('comment_id')
-        operation_result = post.edit_comment(comment_id,
-                          permission.get('username'),
-                          request.form.get('comment'))
+        operation_result = post.edit_comment(
+            comment_id,
+            permission.get('username'),
+            request.form.get('comment'))
         if operation_result.get('status') == 1:
             return redirect('/post?id=%s' % request.form.get('post_id'))
         else:
@@ -196,7 +215,6 @@ def edit_command_handler():
 
     else:
         return "Only logged users can perform this operation"
-
 
 
 @app.route('/deleteComment',
@@ -224,7 +242,13 @@ def server_error(e):
 @app.route('/worker',
            methods=['GET'])
 def worker_handler():
-    return Response(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'service-worker.js')).read(), mimetype='text/javascript')
+    return Response(
+        open(
+            os.path.join(
+                os.path.abspath(
+                    os.path.dirname(__file__)),
+                'service-worker.js')).read(),
+        mimetype='text/javascript')
 
 
 @app.template_filter('ctime')
