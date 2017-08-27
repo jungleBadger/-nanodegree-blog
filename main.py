@@ -147,7 +147,7 @@ def delete_handler():
     if (permission and permission.get('status') == 1):
         post_id = request.form.get('id')
 
-        if (post.delete_post(post_id) == 1):
+        if (post.delete_post(post_id, permission.get('username')) == 1):
             return redirect('/')
         else:
             return redirect('Error deleting post'), 500
@@ -224,7 +224,8 @@ def delete_comment_handler():
     if (permission and permission.get('status') == 1):
         comment_id = request.form.get('comment_id')
 
-        if (post.delete_comment(comment_id) == 1):
+        if post.delete_comment(
+                comment_id, permission.get('username')) == 1:
             return redirect('/post?id=%s' % request.form.get('post_id'))
         else:
             return redirect('Error deleting post'), 500

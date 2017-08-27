@@ -117,25 +117,39 @@ class Post:
 
         return {'response': "Error"}
 
-    def delete_post(self, post_id):
-        self.datastore.delete_object('Post', post_id)
-        return 1
+    def delete_post(self, post_id, username):
+        post = self.query_post_by_id(post_id)
+        if post != 0:
+            if post.get('author') != username:
+                return "Unauthorized operation"
+            self.datastore.delete_object('Post', post_id)
+            return 1
+        return 'post not found'
 
     def like_post(self, post_id, username):
-        like_id = str(uuid.uuid4())
-        like = self.datastore.create_entity('Like', like_id)
-        error = ''
-        like['id'] = like_id
-        like['post'] = post_id
-        like['user'] = username
-        self.datastore.save_object(like)
-        return {'status': 1, 'post_id': post_id}
+        post = self.query_post_by_id(post_id)
+        if post != 0:
+            if post.get('author') == username:
+                return "Unauthorized operation"
+            like_id = str(uuid.uuid4())
+            like = self.datastore.create_entity('Like', like_id)
+            error = ''
+            like['id'] = like_id
+            like['post'] = post_id
+            like['user'] = username
+            self.datastore.save_object(like)
+            return {'status': 1, 'post_id': post_id}
+        return 'post not found'
 
     def dislike_post(self, post_id, username):
-        like = self.query_likes_by_post_id_and_user(post_id, username)
-        print(self.datastore.delete_object('Like', like['id']))
-        print(like)
-        return {'status': 1, 'post_id': post_id}
+        post = self.query_post_by_id(post_id)
+        if post != 0:
+            if post.get('author') == username:
+                return "Unauthorized operation"
+            like = self.query_likes_by_post_id_and_user(post_id, username)
+            self.datastore.delete_object('Like', like['id'])
+            return {'status': 1, 'post_id': post_id}
+        return 'post not found'
 
     def comment_post(self, post_id, comment_author, comment_text):
         comment_id = str(uuid.uuid1())
@@ -150,22 +164,25 @@ class Post:
             error = 'Missing parameters'
         else:
             self.datastore.save_object(comment)
-
         post = self.query_post_by_id(post_id)
-
         if post:
             return 1
         else:
             return error
 
-    def delete_comment(self, comment_id):
-        print(comment_id)
-        self.datastore.delete_object('Comments', comment_id)
-        return 1
+    def delete_comment(self, comment_id, username):
+        comment = self.query_comments_by_id(comment_id)
+        if comment != 0:
+            if comment.get('author') == username:
+                self.datastore.delete_object('Comments', comment_id)
+                return 1
+            else:
+                return 'not authorized'
+        else:
+            return 'comment not found'
 
     def edit_comment(self, comment_id, edit_author, comment_text):
         comment = self.query_comments_by_id(comment_id)
-        print (comment)
         if comment != 0:
             if comment.get('author') != edit_author:
                 return "Unauthorized operation"
